@@ -12,7 +12,7 @@ export class PromptPay {
   private readonly F_05_CURRENCY_CODE = "5303764";
   private readonly F_06_AMOUNT = "54${digitCode}${amount}";
   private readonly F_07_CHECKSUM = "6304${checksumHex}";
-  private readonly C_CITIZEN = "02";
+  private readonly C_NATIONAL_ID = "02";
   private readonly C_TELEPHONE = "01";
   private readonly C_PHONE_PREFIX = "0066";
   private readonly C_QR_IMAGE_DEFAULT_SIZE = 250;
@@ -25,8 +25,8 @@ export class PromptPay {
     this.accountType = this.accountTypeCheck(target);
     this.accountNumber = "";
 
-    if (this.C_CITIZEN === this.accountType) {
-      this.accountNumber = target;
+    if (this.C_NATIONAL_ID === this.accountType) {
+      this.accountNumber = this.convertToProperNationalID(target);
     } else {
       this.accountNumber = this.convertToProperPhoneNo(target);
     }
@@ -77,10 +77,19 @@ export class PromptPay {
     return newPhoneNo;
   }
 
+   /**
+     * Proper nationalID number converter
+     * @param originalNationalID original national id
+     * @return proper format like, 1-3212-44421-33-7 or 1321244421337
+     */
+    private convertToProperNationalID(originalNationalID: string): string {
+      return originalNationalID.replace(/-/g, '')
+    }
+
   private accountTypeCheck(accountTarget: string): string {
     let accType = "00";
 
-    if (this.isCitizenNumber(accountTarget)) {
+    if (this.isNationalID(accountTarget)) {
       accType = "02";
     } else if (this.isPhoneNumber(accountTarget)) {
       accType = "01";
@@ -96,9 +105,13 @@ export class PromptPay {
      * @param accountNumber account number
      * @return true: if it is citizen number
      */
-  private isCitizenNumber(accountNumber: string): boolean {
-    const pattern = /^\d{13}$/; // "^\\d{13}$";
-
+  private isNationalID(accountNumber: string): boolean {
+    const minPattern = /[\d-]{13}/;
+    const maxPattern = /[\d-]{17}/;
+    const pattern = /^\d-?\d{4}-?\d{5}-?\d{2}-?\d$/;
+    
+    if(!minPattern.test(accountNumber) && !maxPattern.test(accountNumber)) return false
+     
     return pattern.test(accountNumber);
   }
 
