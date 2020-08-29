@@ -49,6 +49,16 @@ Deno.test("PromptPay:String: target=1111111111111, amount=1000", () => {
   );
 });
 
+Deno.test("PromptPay:String: target=1-1111-11111-11-1, amount=1000", () => {
+  const promptpay = new PromptPay("1-1111-11111-11-1", 1000);
+  const res = promptpay.generate();
+
+  assertEquals(
+    res,
+    "00020101021229370016A000000677010111021311111111111115802TH5303764540410006304F6A7",
+  );
+});
+
 Deno.test("PromptPay:String: target=1809900145209, amount=-100", () => {
   assertThrows(() => {
     const promptpay = new PromptPay("1809900145209", -100);
