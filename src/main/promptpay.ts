@@ -60,9 +60,9 @@ export class PromptPay {
     return emvco;
   }
 
-  public generateBase64Data() {
+  public generateBase64Data(size: number = 500) {
     const promptpay = this.generate();
-    return qrcode(promptpay);
+    return qrcode(promptpay, { size: size  });
   }
 
   /**
