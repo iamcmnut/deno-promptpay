@@ -2,20 +2,22 @@ import { qrcode } from "https://deno.land/x/qrcode/mod.ts";
 
 import { TargetMismatchError, NegativeAmountError } from "./error/index.ts";
 import { crc16 } from "./crc16.ts";
+import {
+  F_01_VERSION,
+  F_02_QR_TYPE,
+  F_03_MERCHANT_INFO,
+  F_04_COUNTRY_CODE,
+  F_05_CURRENCY_CODE,
+  F_06_AMOUNT,
+  F_07_CHECKSUM,
+  C_NATIONAL_ID,
+  C_TELEPHONE,
+  C_PHONE_PREFIX,
+  C_QR_IMAGE_DEFAULT_SIZE,
+} from "./constants.ts"
 
 export class PromptPay {
-  private readonly F_01_VERSION = "000201";
-  private readonly F_02_QR_TYPE = "010212";
-  private readonly F_03_MERCHANT_INFO =
-    "29370016A000000677010111${accountType}13${accountNumber}";
-  private readonly F_04_COUNTRY_CODE = "5802TH";
-  private readonly F_05_CURRENCY_CODE = "5303764";
-  private readonly F_06_AMOUNT = "54${digitCode}${amount}";
-  private readonly F_07_CHECKSUM = "6304${checksumHex}";
-  private readonly C_NATIONAL_ID = "02";
-  private readonly C_TELEPHONE = "01";
-  private readonly C_PHONE_PREFIX = "0066";
-  private readonly C_QR_IMAGE_DEFAULT_SIZE = 250;
+  
   private accountType: string;
   private accountNumber: string;
   private digitCode: string;
@@ -25,7 +27,7 @@ export class PromptPay {
     this.accountType = this.accountTypeCheck(target);
     this.accountNumber = "";
 
-    if (this.C_NATIONAL_ID === this.accountType) {
+    if (C_NATIONAL_ID === this.accountType) {
       this.accountNumber = this.convertToProperNationalID(target);
     } else {
       this.accountNumber = this.convertToProperPhoneNo(target);
@@ -41,18 +43,18 @@ export class PromptPay {
   }
 
   public generate(): string {
-    let emvco = "";
-    emvco += this.F_01_VERSION;
-    emvco += this.F_02_QR_TYPE;
-    emvco += this.F_03_MERCHANT_INFO.replace("${accountType}", this.accountType)
+    let emvco = ""
+    emvco += F_01_VERSION;
+    emvco += F_02_QR_TYPE;
+    emvco += F_03_MERCHANT_INFO.replace("${accountType}", this.accountType)
       .replace("${accountNumber}", this.accountNumber);
-    emvco += this.F_04_COUNTRY_CODE;
-    emvco += this.F_05_CURRENCY_CODE;
-    emvco += this.F_06_AMOUNT.replace("${digitCode}", this.digitCode).replace(
+    emvco += F_04_COUNTRY_CODE;
+    emvco += F_05_CURRENCY_CODE;
+    emvco += F_06_AMOUNT.replace("${digitCode}", this.digitCode).replace(
       "${amount}",
       this.amount,
     );
-    emvco += this.F_07_CHECKSUM.replace("${checksumHex}", "");
+    emvco += F_07_CHECKSUM.replace("${checksumHex}", "");
 
     const checksum = crc16(emvco).toString(16).toUpperCase();
     emvco += checksum;
@@ -60,7 +62,7 @@ export class PromptPay {
     return emvco;
   }
 
-  public generateBase64Data(size: number = 500) {
+  public generateBase64Data(size: number = C_QR_IMAGE_DEFAULT_SIZE) {
     const promptpay = this.generate();
     return qrcode(promptpay, { size: size  });
   }
@@ -72,7 +74,7 @@ export class PromptPay {
      */
   private convertToProperPhoneNo(originalPhoneNo: string): string {
     let newPhoneNo = originalPhoneNo.substring(1);
-    newPhoneNo = this.C_PHONE_PREFIX + newPhoneNo;
+    newPhoneNo = C_PHONE_PREFIX + newPhoneNo;
 
     return newPhoneNo;
   }
@@ -90,9 +92,9 @@ export class PromptPay {
     let accType = "00";
 
     if (this.isNationalID(accountTarget)) {
-      accType = "02";
+      accType = C_NATIONAL_ID;
     } else if (this.isPhoneNumber(accountTarget)) {
-      accType = "01";
+      accType = C_TELEPHONE;
     } else {
       throw new TargetMismatchError();
     }
