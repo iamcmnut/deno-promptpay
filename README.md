@@ -43,4 +43,4 @@ deno test
 1. QR generator by [denorg/qrcode](https://github.com/denorg/qrcode)
 
 ## License
-- MIT © Chonchanok MueangRuangWit
+- MIT © Chonchanok MueangRuangWit and contributors
