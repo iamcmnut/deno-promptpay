@@ -30,7 +30,7 @@ base64Image300px.then((qr) => {
   console.log(qr);
 });
 ```
-![QR code](https://github.com/iamcmnut/deno-promptpay/blob/master/img/promptpay-qr.gif?raw=true)
+![QR code](https://github.com/iamcmnut/deno-promptpay/blob/master/img/promptpay-qr.png?raw=true)
 
 ## Development
 
