@@ -1,4 +1,4 @@
-import { qrcode } from "https://deno.land/x/qrcode/mod.ts";
+import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 
 import { TargetMismatchError, NegativeAmountError } from "./error/index.ts";
 import { crc16 } from "./crc16.ts";

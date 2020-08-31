@@ -9,7 +9,7 @@ Generate Thai PromptPay QR code string and Base64-encoded images in Deno.
 ## Getting started
 
 ```ts
-import { PromptPay } from "https://deno.land/x/deno_promptpay/mod.ts";
+import { PromptPay } from "https://deno.land/x/promptpay/mod.ts";
 
 const promptpay = new PromptPay("0812345678", 1000);
 const qrCodeString = promptpay.generate();
@@ -21,7 +21,7 @@ base64Image300px.then((qr) => {
 ```
 ## Example
 ```ts
-import { PromptPay } from "https://deno.land/x/deno_promptpay/mod.ts";
+import { PromptPay } from "https://deno.land/x/promptpay/mod.ts";
 
 const promptpay = new PromptPay("0812095124", 50);
 const base64Image300px = promptpay.generateBase64Data(300); // Base64-encoded image

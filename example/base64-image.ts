@@ -1,4 +1,4 @@
-import { PromptPay } from "https://deno.land/x/deno_promptpay/mod.ts";
+import { PromptPay } from "https://deno.land/x/promptpay/mod.ts";
 
 const promptpay = new PromptPay("0812095124", 50);
 const base64Image = promptpay.generateBase64Data(); // Base64-encoded image
