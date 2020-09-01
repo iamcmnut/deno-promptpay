@@ -50,3 +50,10 @@ Deno.test("promptpay.generateBase64Data: target=0812345678, amount=1000", () => 
     );
   });
 });
+
+Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000", async () : Promise<void> => {
+  const promptpay = new PromptPay("0812345678", 1000);
+  await promptpay.generatePromptPayQRImage((file, error) => {
+    assertEquals(error != null, true);
+  });
+});

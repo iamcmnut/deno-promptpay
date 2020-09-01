@@ -1,4 +1,5 @@
 import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
+import { Base64 } from "https://deno.land/x/bb64@1.1.0/mod.ts";
 
 import { TargetMismatchError, NegativeAmountError } from "./error/index.ts";
 import { crc16 } from "./crc16.ts";
@@ -23,6 +24,11 @@ export class PromptPay {
   private digitCode: string;
   private amount: string;
 
+  /**
+   * Create PromptPay instance
+   * @param target receive target allow phone number or national id
+   * @param amount amount of money to be transfered
+   */
   public constructor(target: string, amount: number) {
     this.accountType = this.accountTypeCheck(target);
     this.accountNumber = "";
@@ -42,6 +48,10 @@ export class PromptPay {
     this.digitCode = this.amount.length.toString().padStart(2, "0");
   }
 
+  /**
+   * Generate PromptPay string
+   * @return return PromptPay string
+   */
   public generate(): string {
     let emvco = ""
     emvco += F_01_VERSION;
@@ -62,9 +72,45 @@ export class PromptPay {
     return emvco;
   }
 
+  /**
+   * Generate Base64 enconded image
+   * @param size image size
+   */
   public generateBase64Data(size: number = C_QR_IMAGE_DEFAULT_SIZE) {
     const promptpay = this.generate();
     return qrcode(promptpay, { size: size  });
+  }
+
+  /**
+   * Generate a PromptPay QR .gif file
+   * @param callback forward filename
+   */
+  public generatePromptPayQRImage(callback: (file: string | null, err: Error | null) => void): void {
+    const res = this.generateBase64Data();
+    res.then((val1) => {
+      let filename: string = Date.now().toString() + ".gif";
+      let base64 = "" + val1;
+      base64 = base64.replace(/^data:image\/gif;base64,/, "");
+
+      try {
+        const b64 = Base64.fromBase64String(base64);
+        new Base64(b64).toFile(filename);
+
+        // check image file is created
+        Deno.stat(filename).then((val2) => {
+          if (val2.isFile) {
+            callback(filename, null);
+          } else {
+            callback(null, new Error("Unexpected error."));
+          }
+        }).catch((reason) => {
+          callback(null, reason);
+        });
+      } catch (error) {
+        callback(null, error);
+      }
+    });
+
   }
 
   /**
