@@ -85,31 +85,51 @@ export class PromptPay {
    * Generate a PromptPay QR .gif file
    * @param callback forward filename
    */
-  public generatePromptPayQRImage(callback: (file: string | null, err: Error | null) => void): void {
+  public async generatePromptPayQRImage(callback: (file: string | null, err: Error | null) => void): Promise<void> {
     const res = this.generateBase64Data();
-    res.then((val1) => {
+
+    try {
       let filename: string = Date.now().toString() + ".gif";
-      let base64 = "" + val1;
-      base64 = base64.replace(/^data:image\/gif;base64,/, "");
+      let base64 = await this.generateBase64Data();
+      let base64String = "" + base64;
+      base64String = base64String.replace(/^data:image\/gif;base64,/, "");
+      const b64 = Base64.fromBase64String(base64String);
+      new Base64(b64).toFile(filename);
+      let fileStat = await Deno.stat(filename);
 
-      try {
-        const b64 = Base64.fromBase64String(base64);
-        new Base64(b64).toFile(filename);
-
-        // check image file is created
-        Deno.stat(filename).then((val2) => {
-          if (val2.isFile) {
-            callback(filename, null);
-          } else {
-            callback(null, new Error("Unexpected error."));
-          }
-        }).catch((reason) => {
-          callback(null, reason);
-        });
-      } catch (error) {
-        callback(null, error);
+      if (fileStat) {
+        callback(filename, null);
+      } else {
+        callback(null, new Error("Unexpected error."));
       }
-    });
+
+    } catch(error) {
+      callback(null, error);
+    }
+    
+    // res.then((val1) => {
+    //   let filename: string = Date.now().toString() + ".gif";
+    //   let base64 = "" + val1;
+    //   base64 = base64.replace(/^data:image\/gif;base64,/, "");
+
+    //   try {
+    //     const b64 = Base64.fromBase64String(base64);
+    //     new Base64(b64).toFile(filename);
+
+    //     // check image file is created
+    //     Deno.stat(filename).then((val2) => {
+    //       if (val2.isFile) {
+    //         callback(filename, null);
+    //       } else {
+    //         callback(null, new Error("Unexpected error."));
+    //       }
+    //     }).catch((reason) => {
+    //       callback(null, reason);
+    //     });
+    //   } catch (error) {
+    //     callback(null, error);
+    //   }
+    // });
 
   }
 
