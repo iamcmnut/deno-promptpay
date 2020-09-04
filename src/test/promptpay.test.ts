@@ -10,17 +10,47 @@ import {
 } from "../main/error/index.ts";
 
 [
-  {account: '0812095124', amount: 1000, expected: '00020101021229370016A000000677010111011300668120951245802TH5303764540410006304257F'},
-  {account: '0873211829', amount: 1000, expected: '00020101021229370016A000000677010111011300668732118295802TH5303764540410006304C9FD'},
-  {account: '0873211829', amount: 10.25, expected: '00020101021229370016A000000677010111011300668732118295802TH5303764540510.256304E547'},
-  {account: '0873211829', amount: 10.251231, expected: '00020101021229370016A000000677010111011300668732118295802TH5303764540510.256304E547'},
-  {account: '1111111111111', amount: 1000, expected: '00020101021229370016A000000677010111021311111111111115802TH5303764540410006304F6A7'},
-  {account: '1-1111-11111-11-1', amount: 1000, expected: '00020101021229370016A000000677010111021311111111111115802TH5303764540410006304F6A7'},
-].forEach(input => {
+  {
+    account: "0812095124",
+    amount: 1000,
+    expected:
+      "00020101021229370016A000000677010111011300668120951245802TH5303764540410006304257F",
+  },
+  {
+    account: "0873211829",
+    amount: 1000,
+    expected:
+      "00020101021229370016A000000677010111011300668732118295802TH5303764540410006304C9FD",
+  },
+  {
+    account: "0873211829",
+    amount: 10.25,
+    expected:
+      "00020101021229370016A000000677010111011300668732118295802TH5303764540510.256304E547",
+  },
+  {
+    account: "0873211829",
+    amount: 10.251231,
+    expected:
+      "00020101021229370016A000000677010111011300668732118295802TH5303764540510.256304E547",
+  },
+  {
+    account: "1111111111111",
+    amount: 1000,
+    expected:
+      "00020101021229370016A000000677010111021311111111111115802TH5303764540410006304F6A7",
+  },
+  {
+    account: "1-1111-11111-11-1",
+    amount: 1000,
+    expected:
+      "00020101021229370016A000000677010111021311111111111115802TH5303764540410006304F6A7",
+  },
+].forEach((input) => {
   Deno.test(`promptpay.generate: target=${input.account}, amount=${input.amount}`, () => {
     const promptpay = new PromptPay(input.account, input.amount);
     const res = promptpay.generate();
-  
+
     assertEquals(
       res,
       input.expected,
@@ -29,9 +59,9 @@ import {
 });
 
 [
-  {account: '1809900145209', amount: -100, expected: NegativeAmountError},
-  {account: '08120951245', amount: 100, expected: TargetMismatchError},
-].forEach(input => {
+  { account: "1809900145209", amount: -100, expected: NegativeAmountError },
+  { account: "08120951245", amount: 100, expected: TargetMismatchError },
+].forEach((input) => {
   Deno.test(`promptpay.generate: target=${input.account}, amount=${input.amount}`, () => {
     assertThrows(() => {
       const promptpay = new PromptPay(input.account, input.amount);
@@ -51,7 +81,7 @@ Deno.test("promptpay.generateBase64Data: target=0812345678, amount=1000", () => 
   });
 });
 
-Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000", async () : Promise<void> => {
+Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000", async (): Promise<void> => {
   const promptpay = new PromptPay("0812345678", 1000);
   await promptpay.generatePromptPayQRImage((file, error) => {
     assertEquals(error != null, true);

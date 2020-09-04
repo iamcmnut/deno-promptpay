@@ -15,10 +15,9 @@ import {
   C_TELEPHONE,
   C_PHONE_PREFIX,
   C_QR_IMAGE_DEFAULT_SIZE,
-} from "./constants.ts"
+} from "./constants.ts";
 
 export class PromptPay {
-  
   private accountType: string;
   private accountNumber: string;
   private digitCode: string;
@@ -53,7 +52,7 @@ export class PromptPay {
    * @return return PromptPay string
    */
   public generate(): string {
-    let emvco = ""
+    let emvco = "";
     emvco += F_01_VERSION;
     emvco += F_02_QR_TYPE;
     emvco += F_03_MERCHANT_INFO.replace("${accountType}", this.accountType)
@@ -78,14 +77,16 @@ export class PromptPay {
    */
   public generateBase64Data(size: number = C_QR_IMAGE_DEFAULT_SIZE) {
     const promptpay = this.generate();
-    return qrcode(promptpay, { size: size  });
+    return qrcode(promptpay, { size: size });
   }
 
   /**
    * Generate a PromptPay QR .gif file
    * @param callback forward filename
    */
-  public async generatePromptPayQRImage(callback: (file: string | null, err: Error | null) => void): Promise<void> {
+  public async generatePromptPayQRImage(
+    callback: (file: string | null, err: Error | null) => void,
+  ): Promise<void> {
     const res = this.generateBase64Data();
 
     try {
@@ -102,11 +103,10 @@ export class PromptPay {
       } else {
         callback(null, new Error("Unexpected error."));
       }
-
-    } catch(error) {
+    } catch (error) {
       callback(null, error);
     }
-    
+
     // res.then((val1) => {
     //   let filename: string = Date.now().toString() + ".gif";
     //   let base64 = "" + val1;
@@ -130,7 +130,6 @@ export class PromptPay {
     //     callback(null, error);
     //   }
     // });
-
   }
 
   /**
@@ -145,14 +144,14 @@ export class PromptPay {
     return newPhoneNo;
   }
 
-   /**
+  /**
      * Proper nationalID number converter
      * @param originalNationalID original national id
      * @return proper format like, 1-3212-44421-33-7 or 1321244421337
      */
-    private convertToProperNationalID(originalNationalID: string): string {
-      return originalNationalID.replace(/-/g, '')
-    }
+  private convertToProperNationalID(originalNationalID: string): string {
+    return originalNationalID.replace(/-/g, "");
+  }
 
   private accountTypeCheck(accountTarget: string): string {
     let accType = "00";
@@ -177,9 +176,13 @@ export class PromptPay {
     const minPattern = /[\d-]{13}/;
     const maxPattern = /[\d-]{17}/;
     const pattern = /^\d-?\d{4}-?\d{5}-?\d{2}-?\d$/;
-    
-    if(!minPattern.test(accountNumber) && !maxPattern.test(accountNumber)) return false
-     
+
+    if (
+      !minPattern.test(accountNumber) && !maxPattern.test(accountNumber)
+    ) {
+      return false;
+    }
+
     return pattern.test(accountNumber);
   }
 
