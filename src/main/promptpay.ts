@@ -1,7 +1,11 @@
 import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 import { Base64 } from "https://deno.land/x/bb64@1.1.0/mod.ts";
 
-import { TargetMismatchError, NegativeAmountError, NotImplementedError } from "./error/index.ts";
+import {
+  TargetMismatchError,
+  NegativeAmountError,
+  NotImplementedError,
+} from "./error/index.ts";
 import { crc16 } from "./crc16.ts";
 import {
   F_01_VERSION,
@@ -90,7 +94,6 @@ export class PromptPay {
     imgType: ImageType,
     callback: (file: string | null, err: Error | null) => void,
   ): Promise<void> {
-
     if ([ImageType.JPG, ImageType.PNG].indexOf(imgType) >= 0) {
       callback(null, new NotImplementedError());
       return;
