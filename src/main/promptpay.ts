@@ -1,6 +1,11 @@
 import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
+import { Base64 } from "https://deno.land/x/bb64@1.1.0/mod.ts";
 
-import { TargetMismatchError, NegativeAmountError } from "./error/index.ts";
+import {
+  TargetMismatchError,
+  NegativeAmountError,
+  NotImplementedError,
+} from "./error/index.ts";
 import { crc16 } from "./crc16.ts";
 import {
   F_01_VERSION,
@@ -14,15 +19,21 @@ import {
   C_TELEPHONE,
   C_PHONE_PREFIX,
   C_QR_IMAGE_DEFAULT_SIZE,
-} from "./constants.ts"
+} from "./constants.ts";
+
+import { ImageType } from "./enum/image-type.ts";
 
 export class PromptPay {
-  
   private accountType: string;
   private accountNumber: string;
   private digitCode: string;
   private amount: string;
 
+  /**
+   * Create PromptPay instance
+   * @param target receive target allow phone number or national id
+   * @param amount amount of money to be transfered
+   */
   public constructor(target: string, amount: number) {
     this.accountType = this.accountTypeCheck(target);
     this.accountNumber = "";
@@ -42,8 +53,12 @@ export class PromptPay {
     this.digitCode = this.amount.length.toString().padStart(2, "0");
   }
 
+  /**
+   * Generate PromptPay string
+   * @return return PromptPay string
+   */
   public generate(): string {
-    let emvco = ""
+    let emvco = "";
     emvco += F_01_VERSION;
     emvco += F_02_QR_TYPE;
     emvco += F_03_MERCHANT_INFO.replace("${accountType}", this.accountType)
@@ -62,9 +77,47 @@ export class PromptPay {
     return emvco;
   }
 
+  /**
+   * Generate Base64 enconded image
+   * @param size image size
+   */
   public generateBase64Data(size: number = C_QR_IMAGE_DEFAULT_SIZE) {
     const promptpay = this.generate();
-    return qrcode(promptpay, { size: size  });
+    return qrcode(promptpay, { size: size });
+  }
+
+  /**
+   * Generate a PromptPay QR .gif file
+   * @param callback forward filename
+   */
+  public async generatePromptPayQRImage(
+    imgType: ImageType,
+    callback: (file: string | null, err: Error | null) => void,
+  ): Promise<void> {
+    if ([ImageType.JPG, ImageType.PNG].indexOf(imgType) >= 0) {
+      callback(null, new NotImplementedError());
+      return;
+    }
+
+    const res = this.generateBase64Data();
+
+    try {
+      let filename: string = Date.now().toString() + ".gif";
+      let base64 = await this.generateBase64Data();
+      let base64String = "" + base64;
+      base64String = base64String.replace(/^data:image\/gif;base64,/, "");
+      const b64 = Base64.fromBase64String(base64String);
+      new Base64(b64).toFile(filename);
+      let fileStat = await Deno.stat(filename);
+
+      if (fileStat) {
+        callback(filename, null);
+      } else {
+        callback(null, new Error("Unexpected error."));
+      }
+    } catch (error) {
+      callback(null, error);
+    }
   }
 
   /**
@@ -79,14 +132,14 @@ export class PromptPay {
     return newPhoneNo;
   }
 
-   /**
+  /**
      * Proper nationalID number converter
      * @param originalNationalID original national id
      * @return proper format like, 1-3212-44421-33-7 or 1321244421337
      */
-    private convertToProperNationalID(originalNationalID: string): string {
-      return originalNationalID.replace(/-/g, '')
-    }
+  private convertToProperNationalID(originalNationalID: string): string {
+    return originalNationalID.replace(/-/g, "");
+  }
 
   private accountTypeCheck(accountTarget: string): string {
     let accType = "00";
@@ -111,9 +164,13 @@ export class PromptPay {
     const minPattern = /[\d-]{13}/;
     const maxPattern = /[\d-]{17}/;
     const pattern = /^\d-?\d{4}-?\d{5}-?\d{2}-?\d$/;
-    
-    if(!minPattern.test(accountNumber) && !maxPattern.test(accountNumber)) return false
-     
+
+    if (
+      !minPattern.test(accountNumber) && !maxPattern.test(accountNumber)
+    ) {
+      return false;
+    }
+
     return pattern.test(accountNumber);
   }
 
