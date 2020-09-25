@@ -27,8 +27,8 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v2
 
-      - name: Setup Deno
-        uses: denolib/setup-deno@c7d7968ad4a59c159a777f79adddad6872ee8d96
+      - name: Setup Deno environment
+        uses: denolib/setup-deno@v2.2.0
         with:
           deno-version: ${{ matrix.deno }} # tests across multiple Deno versions
 
