@@ -90,6 +90,7 @@ Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, i
 > => {
   const promptpay = new PromptPay("0812345678", 1000);
   await promptpay.generatePromptPayQRImage(ImageType.GIF, (file, err) => {
+    assert(ImageType.GIF);
     assertEquals(err == null, true);
     assert(file);
   });
