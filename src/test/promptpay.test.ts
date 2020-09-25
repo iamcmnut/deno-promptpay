@@ -85,29 +85,23 @@ Deno.test("promptpay.generateBase64Data: target=0812345678, amount=1000", () => 
   });
 });
 
-Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=GIF", async (): Promise<
-  void
-> => {
+Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=GIF", async () => {
   const promptpay = new PromptPay("0812345678", 1000);
   await promptpay.generatePromptPayQRImage(ImageType.GIF, (file, err) => {
-    assert(ImageType.GIF);
+    console.log(ImageType.GIF);
     assertEquals(err == null, true);
     assert(file);
   });
 });
 
-Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=JPG", async (): Promise<
-  void
-> => {
+Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=JPG", async () => {
   const promptpay = new PromptPay("0812345678", 1000);
   await promptpay.generatePromptPayQRImage(ImageType.JPG, (file, err) => {
     assertEquals(err?.name, new NotImplementedError().name);
   });
 });
 
-Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=PNG", async (): Promise<
-  void
-> => {
+Deno.test("promptpay.generatePromptPayQRImage: target=0812345678, amount=1000, imageType=PNG", async () => {
   const promptpay = new PromptPay("0812345678", 1000);
   await promptpay.generatePromptPayQRImage(ImageType.PNG, (file, err) => {
     assertEquals(err?.name, new NotImplementedError().name);
