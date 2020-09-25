@@ -1,7 +1,7 @@
 import { qrcode } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 import { Base64 } from "https://deno.land/x/bb64@1.1.0/mod.ts";
 
-import { TargetMismatchError, NegativeAmountError } from "./error/index.ts";
+import { TargetMismatchError, NegativeAmountError, NotImplementedError } from "./error/index.ts";
 import { crc16 } from "./crc16.ts";
 import {
   F_01_VERSION,
@@ -16,6 +16,8 @@ import {
   C_PHONE_PREFIX,
   C_QR_IMAGE_DEFAULT_SIZE,
 } from "./constants.ts";
+
+import { ImageType } from "./enum/image-type.ts";
 
 export class PromptPay {
   private accountType: string;
@@ -85,8 +87,15 @@ export class PromptPay {
    * @param callback forward filename
    */
   public async generatePromptPayQRImage(
+    imgType: ImageType,
     callback: (file: string | null, err: Error | null) => void,
   ): Promise<void> {
+
+    if ([ImageType.JPG, ImageType.PNG].indexOf(imgType) >= 0) {
+      callback(null, new NotImplementedError());
+      return;
+    }
+
     const res = this.generateBase64Data();
 
     try {
@@ -106,30 +115,6 @@ export class PromptPay {
     } catch (error) {
       callback(null, error);
     }
-
-    // res.then((val1) => {
-    //   let filename: string = Date.now().toString() + ".gif";
-    //   let base64 = "" + val1;
-    //   base64 = base64.replace(/^data:image\/gif;base64,/, "");
-
-    //   try {
-    //     const b64 = Base64.fromBase64String(base64);
-    //     new Base64(b64).toFile(filename);
-
-    //     // check image file is created
-    //     Deno.stat(filename).then((val2) => {
-    //       if (val2.isFile) {
-    //         callback(filename, null);
-    //       } else {
-    //         callback(null, new Error("Unexpected error."));
-    //       }
-    //     }).catch((reason) => {
-    //       callback(null, reason);
-    //     });
-    //   } catch (error) {
-    //     callback(null, error);
-    //   }
-    // });
   }
 
   /**
